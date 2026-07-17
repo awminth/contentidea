@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'motion/react';
 import {
-  Loader2, Trash2, CheckCircle2, Lightbulb,
+  Loader2, Trash2, CheckCircle2, Lightbulb, CheckSquare, Square,
   CalendarRange, ChevronLeft, ChevronRight, ArrowLeft
 } from 'lucide-react';
 
@@ -41,10 +41,12 @@ interface ContentIdeasProps {
 export default function ContentIdeas({ refreshKey = 0 }: ContentIdeasProps) {
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [loadingIdeas, setLoadingIdeas] = useState(true);
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [selectedRangeKey, setSelectedRangeKey] = useState<string | null>(null);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [page, setPage] = useState(1);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const loadIdeas = async () => {
     setLoadingIdeas(true);
@@ -69,7 +71,6 @@ export default function ContentIdeas({ refreshKey = 0 }: ContentIdeasProps) {
     const map = new Map<string, Idea[]>();
 
     for (const idea of ideas) {
-      // Prefer explicit week range (Generate From→To). Otherwise group by save-batch.
       const key = idea.hasWeekRange
         ? `week:${idea.planFrom}|${idea.planTo}`
         : `batch:${idea.createdBatch || idea.postDate}`;
@@ -110,25 +111,82 @@ export default function ContentIdeas({ refreshKey = 0 }: ContentIdeasProps) {
   const startIdx = (safePage - 1) * rowsPerPage;
   const pagedItems = listForPage.slice(startIdx, startIdx + rowsPerPage);
 
+  const rangeIdeaIds = selectedRange?.ideas.map((i) => i.id) || [];
+  const allRangeSelected =
+    rangeIdeaIds.length > 0 && rangeIdeaIds.every((id) => selectedIds.has(id));
+
   useEffect(() => {
     setPage(1);
+    setSelectedIds(new Set());
   }, [selectedRangeKey, rowsPerPage]);
 
   useEffect(() => {
     if (page > totalPages) setPage(totalPages);
   }, [page, totalPages]);
 
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleCheckAll = () => {
+    if (!selectedRange) return;
+    setSelectedIds(new Set(selectedRange.ideas.map((i) => i.id)));
+  };
+
+  const handleUncheckAll = () => {
+    setSelectedIds(new Set());
+  };
+
   const handleTickPosted = async (idea: Idea) => {
-    if (idea.status === 'Posted') return;
     try {
-      const res = await fetch(`/api/ideas/${idea.id}/posted`, { method: 'POST' });
+      const url =
+        idea.status === 'Posted'
+          ? `/api/ideas/${idea.id}/unposted`
+          : `/api/ideas/${idea.id}/posted`;
+      const res = await fetch(url, { method: 'POST' });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Update failed');
       setIdeas((prev) =>
-        prev.map((i) => (i.id === idea.id ? { ...i, status: 'Posted' } : i))
+        prev.map((i) =>
+          i.id === idea.id
+            ? { ...i, status: idea.status === 'Posted' ? 'Draft' : 'Posted' }
+            : i
+        )
       );
     } catch (err: any) {
-      setError(err.message || 'Posted အဖြစ် မမှတ်သားနိုင်ပါ။');
+      setError(err.message || 'Status မပြောင်းနိုင်ပါ။');
+    }
+  };
+
+  const handleBulkPosted = async (posted: boolean) => {
+    if (!selectedRange) return;
+    const ids = selectedIds.size > 0 ? [...selectedIds] : selectedRange.ideas.map((i) => i.id);
+    if (ids.length === 0) return;
+    setBusy(true);
+    setError('');
+    try {
+      const res = await fetch('/api/ideas/bulk-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids, posted }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Update failed');
+      const idSet = new Set(ids);
+      setIdeas((prev) =>
+        prev.map((i) =>
+          idSet.has(i.id) ? { ...i, status: posted ? 'Posted' : 'Draft' } : i
+        )
+      );
+    } catch (err: any) {
+      setError(err.message || 'Bulk update မရပါ။');
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -138,6 +196,11 @@ export default function ContentIdeas({ refreshKey = 0 }: ContentIdeasProps) {
       const res = await fetch(`/api/ideas/${id}`, { method: 'DELETE' });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Delete failed');
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
       setIdeas((prev) => {
         const next = prev.filter((i) => i.id !== id);
         if (selectedRangeKey) {
@@ -153,6 +216,49 @@ export default function ContentIdeas({ refreshKey = 0 }: ContentIdeasProps) {
       });
     } catch (err: any) {
       setError(err.message || 'ဖျက်မရပါ။');
+    }
+  };
+
+  const handleDeleteSelectedOrAll = async (mode: 'selected' | 'all') => {
+    if (!selectedRange) return;
+    const ids =
+      mode === 'all'
+        ? selectedRange.ideas.map((i) => i.id)
+        : [...selectedIds];
+    if (ids.length === 0) {
+      setError('ဖျက်ရန် idea ရွေးထားခြင်း မရှိပါ။ Check လုပ်ပြီးမှ Delete လုပ်ပါ။');
+      return;
+    }
+    const label = mode === 'all' ? 'ဤ Date Range အတွင်း idea အားလုံး' : `ရွေးထားသော idea ${ids.length} ခု`;
+    if (!confirm(`${label} ကို ဖျက်မလား?`)) return;
+
+    setBusy(true);
+    setError('');
+    try {
+      const res = await fetch('/api/ideas/bulk-delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Delete failed');
+      const idSet = new Set(ids);
+      setIdeas((prev) => {
+        const next = prev.filter((i) => !idSet.has(i.id));
+        const stillInRange = next.some((i) => {
+          const key = i.hasWeekRange
+            ? `week:${i.planFrom}|${i.planTo}`
+            : `batch:${i.createdBatch || i.postDate}`;
+          return key === selectedRangeKey;
+        });
+        if (!stillInRange) setSelectedRangeKey(null);
+        return next;
+      });
+      setSelectedIds(new Set());
+    } catch (err: any) {
+      setError(err.message || 'ဖျက်မရပါ။');
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -198,6 +304,61 @@ export default function ContentIdeas({ refreshKey = 0 }: ContentIdeasProps) {
             </button>
           )}
         </div>
+
+        {selectedRange && (
+          <div className="mb-4 flex flex-wrap items-center gap-2 p-3 rounded-2xl bg-slate-100 border border-slate-200">
+            <button
+              type="button"
+              disabled={busy}
+              onClick={handleCheckAll}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-300 text-slate-800 hover:bg-slate-50 cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+            >
+              <CheckSquare className="w-3.5 h-3.5" /> Check All
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={handleUncheckAll}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-300 text-slate-800 hover:bg-slate-50 cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+            >
+              <Square className="w-3.5 h-3.5" /> Uncheck All
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => handleBulkPosted(true)}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-teal-700 text-white hover:bg-teal-600 cursor-pointer disabled:opacity-50"
+              title={selectedIds.size ? 'ရွေးထားသည်များကို Posted' : 'အားလုံး Posted'}
+            >
+              Mark Posted
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => handleBulkPosted(false)}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-100 border border-amber-300 text-amber-900 hover:bg-amber-50 cursor-pointer disabled:opacity-50"
+            >
+              Unmark Posted
+            </button>
+            <button
+              type="button"
+              disabled={busy || selectedIds.size === 0}
+              onClick={() => handleDeleteSelectedOrAll('selected')}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-red-300 text-red-700 hover:bg-red-50 cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+            >
+              <Trash2 className="w-3.5 h-3.5" /> Delete Selected ({selectedIds.size})
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => handleDeleteSelectedOrAll('all')}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-600 text-white hover:bg-red-500 cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+            >
+              <Trash2 className="w-3.5 h-3.5" /> Delete All
+            </button>
+            {busy && <Loader2 className="w-4 h-4 animate-spin text-slate-500" />}
+          </div>
+        )}
 
         {loadingIdeas ? (
           <div className="py-10 text-center text-sm text-slate-600 flex items-center justify-center gap-2">
@@ -249,6 +410,8 @@ export default function ContentIdeas({ refreshKey = 0 }: ContentIdeasProps) {
                   <IdeaRow
                     key={idea.id}
                     idea={idea}
+                    selected={selectedIds.has(idea.id)}
+                    onToggleSelect={() => toggleSelect(idea.id)}
                     onTick={() => handleTickPosted(idea)}
                     onDelete={() => handleDelete(idea.id)}
                   />
@@ -275,6 +438,9 @@ export default function ContentIdeas({ refreshKey = 0 }: ContentIdeasProps) {
                     : `${startIdx + 1}–${Math.min(startIdx + rowsPerPage, totalItems)}`}{' '}
                   of {totalItems}
                 </span>
+                {selectedRange && allRangeSelected && (
+                  <span className="text-teal-700 font-semibold">· All checked</span>
+                )}
               </div>
 
               <div className="flex items-center gap-2">
@@ -308,10 +474,14 @@ export default function ContentIdeas({ refreshKey = 0 }: ContentIdeasProps) {
 
 function IdeaRow({
   idea,
+  selected,
+  onToggleSelect,
   onTick,
   onDelete,
 }: {
   idea: Idea;
+  selected: boolean;
+  onToggleSelect: () => void;
   onTick: () => void;
   onDelete: () => void;
 }) {
@@ -323,18 +493,30 @@ function IdeaRow({
       layout
       className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-start gap-3 ${
         isPosted ? 'bg-teal-50/60 border-teal-200' : 'bg-white border-slate-200'
-      }`}
+      } ${selected ? 'ring-2 ring-teal-400/50' : ''}`}
     >
       <button
         type="button"
+        onClick={onToggleSelect}
+        className={`mt-0.5 shrink-0 w-7 h-7 rounded-lg border flex items-center justify-center cursor-pointer ${
+          selected
+            ? 'bg-slate-800 border-slate-800 text-white'
+            : 'bg-white border-slate-400 text-transparent hover:border-slate-600'
+        }`}
+        title={selected ? 'Uncheck' : 'Check'}
+      >
+        <CheckSquare className="w-4 h-4" />
+      </button>
+
+      <button
+        type="button"
         onClick={onTick}
-        disabled={isPosted}
-        className={`mt-0.5 shrink-0 w-7 h-7 rounded-lg border flex items-center justify-center transition-all cursor-pointer disabled:cursor-default ${
+        className={`mt-0.5 shrink-0 w-7 h-7 rounded-lg border flex items-center justify-center transition-all cursor-pointer ${
           isPosted
             ? 'bg-teal-600 border-teal-600 text-white'
             : 'bg-white border-slate-400 text-slate-300 hover:border-teal-600 hover:text-teal-600'
         }`}
-        title={isPosted ? 'Posted' : 'Mark as Posted'}
+        title={isPosted ? 'Unmark Posted' : 'Mark as Posted'}
       >
         <CheckCircle2 className="w-4 h-4" />
       </button>

@@ -7,7 +7,10 @@ import {
   listIdeas,
   createIdeas,
   markIdeaPosted,
+  markIdeaUnposted,
   deleteIdea,
+  deleteIdeas,
+  setIdeasPostedStatus,
   getPreviousWeekPosted,
   testDbConnection,
   ensureSchema,
@@ -89,6 +92,37 @@ async function startServer() {
     }
   });
 
+  app.post("/api/ideas/bulk-status", async (req, res) => {
+    try {
+      const { ids, posted } = req.body;
+      if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ error: "ids array is required" });
+      }
+      const affected = await setIdeasPostedStatus(
+        ids.map(Number).filter(Boolean),
+        !!posted
+      );
+      res.json({ success: true, affected });
+    } catch (error: any) {
+      console.error("Bulk status error:", error);
+      res.status(500).json({ error: "Failed to update status", details: error.message });
+    }
+  });
+
+  app.post("/api/ideas/bulk-delete", async (req, res) => {
+    try {
+      const { ids } = req.body;
+      if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ error: "ids array is required" });
+      }
+      const affected = await deleteIdeas(ids.map(Number).filter(Boolean));
+      res.json({ success: true, affected });
+    } catch (error: any) {
+      console.error("Bulk delete error:", error);
+      res.status(500).json({ error: "Failed to delete ideas", details: error.message });
+    }
+  });
+
   app.post("/api/ideas/:id/posted", async (req, res) => {
     try {
       const id = Number(req.params.id);
@@ -99,6 +133,19 @@ async function startServer() {
     } catch (error: any) {
       console.error("Mark posted error:", error);
       res.status(500).json({ error: "Failed to mark as posted", details: error.message });
+    }
+  });
+
+  app.post("/api/ideas/:id/unposted", async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      if (!id) return res.status(400).json({ error: "Invalid id" });
+      const ok = await markIdeaUnposted(id);
+      if (!ok) return res.status(404).json({ error: "Idea not found" });
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Mark unposted error:", error);
+      res.status(500).json({ error: "Failed to unmark posted", details: error.message });
     }
   });
 

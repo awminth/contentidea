@@ -242,9 +242,39 @@ export async function markIdeaPosted(id: number): Promise<boolean> {
   return (result as mysql.ResultSetHeader).affectedRows > 0;
 }
 
+export async function markIdeaUnposted(id: number): Promise<boolean> {
+  const [result] = await pool.query(
+    `UPDATE contents
+     SET status = 'Draft', posted_at = NULL
+     WHERE id = ?`,
+    [id]
+  );
+  return (result as mysql.ResultSetHeader).affectedRows > 0;
+}
+
 export async function deleteIdea(id: number): Promise<boolean> {
   const [result] = await pool.query(`DELETE FROM contents WHERE id = ?`, [id]);
   return (result as mysql.ResultSetHeader).affectedRows > 0;
+}
+
+export async function deleteIdeas(ids: number[]): Promise<number> {
+  if (!ids.length) return 0;
+  const [result] = await pool.query(
+    `DELETE FROM contents WHERE id IN (${ids.map(() => "?").join(",")})`,
+    ids
+  );
+  return (result as mysql.ResultSetHeader).affectedRows;
+}
+
+export async function setIdeasPostedStatus(ids: number[], posted: boolean): Promise<number> {
+  if (!ids.length) return 0;
+  const [result] = await pool.query(
+    posted
+      ? `UPDATE contents SET status = 'Posted', posted_at = NOW() WHERE id IN (${ids.map(() => "?").join(",")})`
+      : `UPDATE contents SET status = 'Draft', posted_at = NULL WHERE id IN (${ids.map(() => "?").join(",")})`,
+    ids
+  );
+  return (result as mysql.ResultSetHeader).affectedRows;
 }
 
 /** Posted ideas from the 7 days before the new plan's fromDate */

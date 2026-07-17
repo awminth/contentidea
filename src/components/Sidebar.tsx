@@ -27,11 +27,13 @@ export default function Sidebar({ currentUser, activeTab, setActiveTab, onLogout
   return (
     <aside className="w-64 bg-white border-r border-slate-300 flex flex-col h-screen fixed left-0 top-0 z-20 shadow-sm">
       <div className="p-6 border-b border-slate-200 flex items-center gap-3">
-        <div className="w-8 h-8 bg-teal-700 rounded-lg flex items-center justify-center">
-          <span className="font-bold text-white text-xs">MT</span>
-        </div>
+        <img
+          src="/favicon.png"
+          alt="Marctober Tech"
+          className="w-9 h-9 rounded-lg object-contain bg-white border border-slate-200"
+        />
         <div>
-          <span className="text-sm font-bold text-slate-900 tracking-wider uppercase block">
+          <span className="text-sm font-bold text-slate-900 tracking-wider block">
             Marctober Tech
           </span>
           <span className="text-[10px] text-teal-700 font-semibold font-mono">
