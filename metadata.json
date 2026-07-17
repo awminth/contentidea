@@ -1,0 +1,8 @@
+{
+  "name": "Facebook Content Planner",
+  "description": "Facebook Content Planner & Analytics Management System for Customized Software Development pages with SQL schema export, daily suggestions, and post monitoring.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

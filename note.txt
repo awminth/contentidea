@@ -1,0 +1,2 @@
+-အခုဒီProjectကို github သို့တင်ပေးပါ။ repo name = "https://github.com/awminth/contentidea.git " ဖြစ်ပါတယ်။ 
+-githubတင်တာအောင်မြင်ရင် renderမှာပါ publishလုပ်ပေးပါ။
