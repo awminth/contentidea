@@ -242,16 +242,26 @@ CONTENT MIX RULE (strict):
 - Even positions (2nd, 4th, 6th…): category = "Management System"
 
 CATEGORY MEANING:
-1) "Tech" = simple everyday computer / phone tips that normal people rarely know but can use immediately.
-   GOOD examples (match this vibe):
+1) "Tech" = mix of two easy themes for ordinary people (rotate both across Tech days — do not only use computer tips):
+   A) Everyday computer / phone tips people rarely know but can use immediately
+   B) Simple AI topics that anyone can understand and try (no jargon)
+
+   GOOD computer-tip examples:
    - ကွန်ပျူတာ အသုံးကြာလို့ နည်းနည်းနှေးလာရင် ဘာလုပ်သင့်လဲ
    - Recent Files ဖျက်နည်း / Temp files ရှင်းနည်း
    - Screenshot မြန်မြန် ရိုက်နည်း၊ folder အမြန်ရှာနည်း၊ disk space လွတ်အောင်လုပ်နည်း
-   - Windows / phone မှာ လူသိနည်းတဲ့ shortcut သို့မဟုတ် setting tip တစ်ခု
-   BAD examples (NEVER use these — too advanced / boring for normal users):
+
+   GOOD simple-AI examples (must stay beginner-friendly):
+   - AI ဆိုတာ ဘာလဲ — လူတိုင်းနားလည်အောင် တစ်ချက်ရှင်းပြ
+   - ChatGPT / AI နဲ့ Facebook caption၊ စာတို၊ စျေးကြော်ငြာ စာရေးနည်း
+   - AI ကို ဓာတ်ပုံတည်းဖြတ် / ပုံဖန်တီးဖို့ သုံးနည်း (လွယ်ကူသော tip)
+   - ကျောင်းသား / ဆိုင်ပိုင်ရှင် AI ကို နေ့စဉ်အလုပ်မှာ ဘယ်လိုသုံးမလဲ
+   - AI ကို မေးရင် ပိုကောင်းတဲ့ အဖြေရအောင် မေးနည်း (prompt tip for beginners)
+
+   BAD examples (NEVER use — too advanced):
    - Digital transformation, cloud architecture, cybersecurity frameworks
-   - AI/ML, DevOps, ERP industry trends, software engineering topics
-   - Abstract "tech authority" education that sounds corporate or academic
+   - Machine learning models, neural networks, AI engineering, DevOps, ERP industry trends
+   - Abstract "tech authority" / LinkedIn thought-leadership education
 2) "Management System" = simple, relatable ideas about customized management systems for small/medium business owners.
    Focus on everyday pain points (စာရင်းရှုပ်၊ stock ပျောက်၊ Excel အမှား၊ ဝန်ထမ်းစာရင်း) in plain language.
    Do NOT lock to one specific product name — keep it open so the owner can later choose which Management System to feature.
@@ -261,11 +271,13 @@ TOPIC / TITLE STYLE (strict):
 - Short, clear, curiosity-friendly — like a Facebook post title ordinary people would click.
 - Sound like a helpful friend tip, NOT a seminar or LinkedIn thought-leadership headline.
 - Prefer concrete actions and situations over abstract concepts.
+- For AI topics: explain in plain language a non-tech person would understand in 10 seconds.
 
 STRICT OUTPUT RULES:
 - Do NOT write full Facebook captions, CTAs, hashtag walls, or long sales copy.
 - Keep each idea short, practical, and actionable as a planning note.
-- Every Tech idea must be something a non-tech person can try on their own PC/phone today.
+- Every Tech idea must be something a non-tech person can understand and try today (PC, phone, or a free AI chat tool).
+- Across the date range, include BOTH computer tips and simple AI ideas on Tech days (roughly balanced when there are 2+ Tech days).
 
 For EACH date return:
 1. date — exact YYYY-MM-DD from the list
@@ -340,8 +352,10 @@ function getFallbackRangeSuggestions(
 
   const techIdeasMm = [
     { topic: "ကွန်ပျူတာ နှေးလာရင် ချက်ချင်းလုပ်သင့်တဲ့ အရာများ", ideaSummary: "အသုံးကြာပြီး နည်းနည်းနှေးလာတဲ့ PC အတွက် Recent files / Temp ရှင်းခြင်း စတဲ့ လူလုပ်လို့ရတဲ့ tip များ။", contentType: "Carousels" },
+    { topic: "AI ဆိုတာ ဘာလဲ — တစ်မိနစ်နဲ့ နားလည်အောင်", ideaSummary: "AI ကို နည်းပညာစကားမပါဘဲ လူတိုင်းနားလည်အောင် ရိုးရှင်းစွာ ရှင်းပြမည့် idea။", contentType: "Image" },
+    { topic: "ChatGPT နဲ့ Facebook caption ရေးနည်း", ideaSummary: "စာရေးမတတ်ရင်တောင် AI ကို မေးပြီး caption လှလှ ရအောင် လုပ်တဲ့ beginner tip။", contentType: "Carousels" },
     { topic: "Recent Files ဖျက်ပြီး သိမ်းဆည်းနေရာ လွတ်အောင်လုပ်နည်း", ideaSummary: "Recent / Quick Access ထဲက မလိုတော့တဲ့ ဖိုင်တွေ ရှင်းပြီး ကွန်ပျူတာ ပိုသက်သာအောင် လုပ်တဲ့ idea။", contentType: "Image" },
-    { topic: "Screenshot မြန်မြန်ရိုက်နည်း လူသိနည်း tip", ideaSummary: "Windows မှာ အမြန် screenshot ရိုက်ပြီး လိုချင်တဲ့ နေရာပဲ ဖြတ်ယူတဲ့ လွယ်ကူသော tip။", contentType: "Video" },
+    { topic: "AI ကို မေးရင် ပိုကောင်းတဲ့ အဖြေရအောင်", ideaSummary: "လိုချင်တာကို ရှင်းရှင်းလင်းလင်း မေးနည်း — လူတိုင်းသုံးလို့ရတဲ့ prompt tip။", contentType: "Video" },
     { topic: "Disk နေရာ ပြည့်နေရင် ဘယ်လိုရှင်းမလဲ", ideaSummary: "Download folder၊ recycle bin၊ မလိုတော့တဲ့ installer များ ရှင်းခြင်း စတဲ့ everyday tip။", contentType: "Carousels" },
   ];
 
@@ -354,8 +368,10 @@ function getFallbackRangeSuggestions(
 
   const techIdeasEn = [
     { topic: "What to do when your PC starts getting slow", ideaSummary: "Simple cleanup tips like clearing recent/temp files that everyday users can try right away.", contentType: "Carousels" },
+    { topic: "What is AI? Explained in one minute", ideaSummary: "A plain-language explanation of AI that anyone can understand — no jargon.", contentType: "Image" },
+    { topic: "Write a Facebook caption with ChatGPT", ideaSummary: "Beginner tip on asking AI for a nice caption even if you are not a writer.", contentType: "Carousels" },
     { topic: "Clear Recent Files to free up clutter fast", ideaSummary: "A practical tip on cleaning Recent/Quick Access so the computer feels lighter.", contentType: "Image" },
-    { topic: "A lesser-known fast screenshot trick", ideaSummary: "Easy Windows screenshot tip ordinary people rarely use but love once they learn it.", contentType: "Video" },
+    { topic: "Ask AI better to get better answers", ideaSummary: "Simple beginner prompt tip: how to ask clearly so AI replies more usefully.", contentType: "Video" },
     { topic: "Easy ways to free disk space when storage is full", ideaSummary: "Everyday cleanup ideas: Downloads, Recycle Bin, old installers.", contentType: "Carousels" },
   ];
 
