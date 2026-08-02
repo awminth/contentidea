@@ -217,6 +217,11 @@ Your job is NOT to write ready-to-publish Facebook posts.
 Your job is ONLY to propose daily CONTENT IDEAS so the page owner knows WHAT theme/topic to post about each day.
 The page owner will later decide the exact Management System product and write the final post themselves.
 
+AUDIENCE (very important):
+- Main readers are everyday Myanmar Facebook users — NOT IT professionals, developers, or tech experts.
+- Ideas must feel easy, familiar, and interesting to ordinary people who just use a computer/phone for daily life or small business.
+- Prefer "aha!" tips people want to save/share over impressive-sounding advanced topics.
+
 Date range (one idea per date):
 ${JSON.stringify(datesInRange)}
 
@@ -237,12 +242,30 @@ CONTENT MIX RULE (strict):
 - Even positions (2nd, 4th, 6th…): category = "Management System"
 
 CATEGORY MEANING:
-1) "Tech" = general technology / digital transformation / software industry education ideas that build authority. NOT a hard product sales pitch.
-2) "Management System" = ideas about customized management systems in general. Do NOT lock to one specific product name — keep it open so the owner can later choose which Management System to feature.
+1) "Tech" = simple everyday computer / phone tips that normal people rarely know but can use immediately.
+   GOOD examples (match this vibe):
+   - ကွန်ပျူတာ အသုံးကြာလို့ နည်းနည်းနှေးလာရင် ဘာလုပ်သင့်လဲ
+   - Recent Files ဖျက်နည်း / Temp files ရှင်းနည်း
+   - Screenshot မြန်မြန် ရိုက်နည်း၊ folder အမြန်ရှာနည်း၊ disk space လွတ်အောင်လုပ်နည်း
+   - Windows / phone မှာ လူသိနည်းတဲ့ shortcut သို့မဟုတ် setting tip တစ်ခု
+   BAD examples (NEVER use these — too advanced / boring for normal users):
+   - Digital transformation, cloud architecture, cybersecurity frameworks
+   - AI/ML, DevOps, ERP industry trends, software engineering topics
+   - Abstract "tech authority" education that sounds corporate or academic
+2) "Management System" = simple, relatable ideas about customized management systems for small/medium business owners.
+   Focus on everyday pain points (စာရင်းရှုပ်၊ stock ပျောက်၊ Excel အမှား၊ ဝန်ထမ်းစာရင်း) in plain language.
+   Do NOT lock to one specific product name — keep it open so the owner can later choose which Management System to feature.
+   Avoid heavy jargon (no "digital transformation roadmap", "enterprise scalability", etc.).
+
+TOPIC / TITLE STYLE (strict):
+- Short, clear, curiosity-friendly — like a Facebook post title ordinary people would click.
+- Sound like a helpful friend tip, NOT a seminar or LinkedIn thought-leadership headline.
+- Prefer concrete actions and situations over abstract concepts.
 
 STRICT OUTPUT RULES:
 - Do NOT write full Facebook captions, CTAs, hashtag walls, or long sales copy.
 - Keep each idea short, practical, and actionable as a planning note.
+- Every Tech idea must be something a non-tech person can try on their own PC/phone today.
 
 For EACH date return:
 1. date — exact YYYY-MM-DD from the list
@@ -316,31 +339,31 @@ function getFallbackRangeSuggestions(
   const previousSet = new Set((previousPostedTopics || []).map((t) => t.toLowerCase().trim()));
 
   const techIdeasMm = [
-    { topic: "SME များအတွက် Digital Transformation စတင်နည်း", ideaSummary: "လုပ်ငန်းငယ်များ နည်းပညာစတင်အသုံးပြုရာတွင် ဘယ်နေရာက စရမလဲဆိုသည့် အခြေခံလမ်းညွှန် idea။", contentType: "Carousels" },
-    { topic: "လုပ်ငန်းဒေတာ လုံခြုံရေး အခြေခံအချက်များ", ideaSummary: "Password, backup, access control စသည့် cybersecurity awareness idea။", contentType: "Image" },
-    { topic: "Cloud သုံးခြင်း၏ အားသာချက်များ", ideaSummary: "ရုံးပြင်ပမှ ဒေတာကြည့်နိုင်မှုနှင့် backup အကျိုးကျေးဇူးကို ရှင်းပြမည့် tech education idea။", contentType: "Text" },
-    { topic: "Manual အလုပ်များကို Automation လုပ်ခြင်း", ideaSummary: "လူကိုယ်တိုင်လုပ်ရသော repetitive tasks များကို နည်းပညာဖြင့် လျှော့ချနိုင်ပုံ idea။", contentType: "Video" },
+    { topic: "ကွန်ပျူတာ နှေးလာရင် ချက်ချင်းလုပ်သင့်တဲ့ အရာများ", ideaSummary: "အသုံးကြာပြီး နည်းနည်းနှေးလာတဲ့ PC အတွက် Recent files / Temp ရှင်းခြင်း စတဲ့ လူလုပ်လို့ရတဲ့ tip များ။", contentType: "Carousels" },
+    { topic: "Recent Files ဖျက်ပြီး သိမ်းဆည်းနေရာ လွတ်အောင်လုပ်နည်း", ideaSummary: "Recent / Quick Access ထဲက မလိုတော့တဲ့ ဖိုင်တွေ ရှင်းပြီး ကွန်ပျူတာ ပိုသက်သာအောင် လုပ်တဲ့ idea။", contentType: "Image" },
+    { topic: "Screenshot မြန်မြန်ရိုက်နည်း လူသိနည်း tip", ideaSummary: "Windows မှာ အမြန် screenshot ရိုက်ပြီး လိုချင်တဲ့ နေရာပဲ ဖြတ်ယူတဲ့ လွယ်ကူသော tip။", contentType: "Video" },
+    { topic: "Disk နေရာ ပြည့်နေရင် ဘယ်လိုရှင်းမလဲ", ideaSummary: "Download folder၊ recycle bin၊ မလိုတော့တဲ့ installer များ ရှင်းခြင်း စတဲ့ everyday tip။", contentType: "Carousels" },
   ];
 
   const systemIdeasMm = [
-    { topic: "Customized Management System က ဘာကြောင့်လိုအပ်သလဲ", ideaSummary: "Ready-made ထက် စိတ်ကြိုက်စနစ်က လုပ်ငန်း workflow နဲ့ ကိုက်ညီပုံကို ယေဘုယျရှင်းပြမည့် idea။ ဘယ် system တင်မလဲ ကိုယ်တိုင်ရွေးရန်။", contentType: "Carousels" },
-    { topic: "လုပ်ငန်းစာရင်းရှုပ်ထွေးမှုကို စနစ်ဖြင့် ဖြေရှင်းခြင်း", ideaSummary: "Excel/စာရွက်စာတမ်း အမှားများ လျော့ချရန် management system တစ်ခု၏ အခန်းကဏ္ဍ idea။", contentType: "Image" },
-    { topic: "တစ်နေရာတည်းကနေ လုပ်ငန်းစီမံခန့်ခွဲခြင်း", ideaSummary: "အရောင်း၊ စတော့၊ ဝန်ထမ်း စသည်တို့ကို တစ်ခုတည်းသော dashboard ကနေ ကြည့်နိုင်သည့် concept idea။", contentType: "Carousels" },
-    { topic: "လုပ်ငန်းကြီးထွားလာတဲ့အခါ System က ဘယ်လိုကူညီမလဲ", ideaSummary: "Scale up လုပ်တဲ့အခါ customized management system က ဘယ်လို အထောက်အကူပြုမလဲ ဆိုသည့် planning idea။", contentType: "Text" },
+    { topic: "Excel စာရင်းတွေ ရှုပ်လာရင် ဘာလုပ်သင့်လဲ", ideaSummary: "ဖိုင်များပြားလာပြီး အမှားများတဲ့အခါ စိတ်ကြိုက် management system က ဘယ်လို ကူညီနိုင်မလဲ ဆိုသည့် ရိုးရှင်းသော idea။", contentType: "Carousels" },
+    { topic: "စတော့ပစ္စည်း ပျောက်လွယ်တာကို လျှော့ချနည်း", ideaSummary: "လက်ရေး/Excel နဲ့ စာရင်းလုပ်ရင်း ပစ္စည်းပျောက်တဲ့ ပြဿနာကို စနစ်နဲ့ ဖြေရှင်းမည့် idea။", contentType: "Image" },
+    { topic: "အရောင်းစာရင်းကို တစ်နေရာတည်းက ကြည့်ချင်ရင်", ideaSummary: "နေ့စဉ်အရောင်းကို ဖုန်း/ကွန်ပျူတာကနေ တစ်ချက်ကြည့်နိုင်အောင် စနစ်သုံးခြင်း idea။", contentType: "Carousels" },
+    { topic: "ဝန်ထမ်းလစာ စာရင်းကို လွယ်ကူအောင်လုပ်နည်း", ideaSummary: "လစဉ်လစာတွက်ချက်မှု ရှုပ်ထွေးမှုကို management system နဲ့ ရိုးရှင်းအောင်လုပ်မည့် idea။", contentType: "Text" },
   ];
 
   const techIdeasEn = [
-    { topic: "Digital transformation basics for SMEs", ideaSummary: "A simple education idea on where small businesses should start with technology.", contentType: "Carousels" },
-    { topic: "Essential cybersecurity habits for business owners", ideaSummary: "Awareness idea covering passwords, backups, and access control.", contentType: "Image" },
-    { topic: "Why cloud access matters for growing teams", ideaSummary: "Tech education idea about remote data access and safer backups.", contentType: "Text" },
-    { topic: "Replacing repetitive manual work with automation", ideaSummary: "Idea about reducing human error through smarter digital workflows.", contentType: "Video" },
+    { topic: "What to do when your PC starts getting slow", ideaSummary: "Simple cleanup tips like clearing recent/temp files that everyday users can try right away.", contentType: "Carousels" },
+    { topic: "Clear Recent Files to free up clutter fast", ideaSummary: "A practical tip on cleaning Recent/Quick Access so the computer feels lighter.", contentType: "Image" },
+    { topic: "A lesser-known fast screenshot trick", ideaSummary: "Easy Windows screenshot tip ordinary people rarely use but love once they learn it.", contentType: "Video" },
+    { topic: "Easy ways to free disk space when storage is full", ideaSummary: "Everyday cleanup ideas: Downloads, Recycle Bin, old installers.", contentType: "Carousels" },
   ];
 
   const systemIdeasEn = [
-    { topic: "Why customized management systems matter", ideaSummary: "Open idea on tailored systems vs rigid templates. Owner chooses which system later.", contentType: "Carousels" },
-    { topic: "Fixing messy business records with one system", ideaSummary: "Idea about reducing spreadsheet chaos with a customized management approach.", contentType: "Image" },
-    { topic: "Manage operations from one dashboard", ideaSummary: "Concept idea for unified visibility across sales, stock, and staff processes.", contentType: "Carousels" },
-    { topic: "How systems support business growth", ideaSummary: "Planning idea on scaling operations with a customized management system.", contentType: "Text" },
+    { topic: "When Excel sheets get too messy", ideaSummary: "Simple idea on how a customized management system can reduce spreadsheet chaos. Owner picks the product later.", contentType: "Carousels" },
+    { topic: "Stop losing track of stock items", ideaSummary: "Relatable idea for shops that lose count with handwritten or Excel stock lists.", contentType: "Image" },
+    { topic: "See daily sales in one place", ideaSummary: "Idea about checking sales from phone/PC without hunting through many files.", contentType: "Carousels" },
+    { topic: "Make payroll less stressful each month", ideaSummary: "Plain-language idea on simplifying salary records with a management system.", contentType: "Text" },
   ];
 
   const techPool = isBurmese ? techIdeasMm : techIdeasEn;
